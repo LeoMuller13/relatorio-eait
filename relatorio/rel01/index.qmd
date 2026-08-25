@@ -27,9 +27,22 @@ execute:
 
 ## 📌 Introdução
 
-**Descreva** o contexto da prática e sua importância.
+## 1 Introdução
 
-> Exemplo: análise da variabilidade em experimentos físicos utilizando uma catapulta.
+O monitoramento geotécnico constitui uma importante ferramenta para o acompanhamento das condições de segurança e do comportamento de estruturas geotécnicas. No contexto de pilhas de estéril, entre as variáveis que podem ser acompanhadas encontra-se o nível d’água (NA), cuja evolução ao longo do tempo fornece informações relevantes acerca das condições hidrogeotécnicas da estrutura. Entretanto, a simples obtenção dos dados de instrumentação não é suficiente para sua adequada interpretação, sendo necessária a aplicação de procedimentos de organização, representação e análise capazes de transformar os registros obtidos em informações úteis.
+
+Nesse contexto, a Estatística constitui uma ferramenta fundamental para a organização, síntese, representação e interpretação de conjuntos de dados. A Estatística Descritiva, especificamente, permite caracterizar os dados observados por meio de tabelas, gráficos e medidas numéricas, possibilitando identificar valores típicos, dispersão, comportamento da distribuição e possíveis observações discrepantes.
+
+A aplicação desses procedimentos pode ser auxiliada por ferramentas computacionais. Entre elas destaca-se o ambiente R, uma linguagem de programação e ambiente computacional livre e de código aberto que apresenta recursos destinados à manipulação de dados, realização de cálculos e construção de representações gráficas. Além das funcionalidades disponíveis em sua instalação básica, o ambiente pode ser expandido por meio de pacotes desenvolvidos para diferentes aplicações.
+
+Entre esses recursos encontra-se o pacote leem — "Laboratory of Teaching to Statistics and Mathematics" — desenvolvido com a proposta de auxiliar o ensino e a aprendizagem de Estatística e Matemática por meio do ambiente R. O pacote disponibiliza ferramentas que podem ser empregadas na organização, tabulação e representação dos dados, permitindo associar os conceitos estatísticos aos procedimentos computacionais utilizados em sua obtenção.
+
+Neste trabalho, os conceitos introdutórios da linguagem R e os fundamentos da Estatística Descritiva são integrados à análise de um banco de dados proveniente do monitoramento de nível d’água de uma pilha de estéril. A análise será realizada utilizando o pacote leem, contemplando a organização e tabulação dos registros, apresentação gráfica, determinação de medidas de posição e dispersão e avaliação da assimetria e curtose da distribuição.
+
+A utilização do pacote não elimina, entretanto, a necessidade de compreensão dos procedimentos estatísticos envolvidos. Dessa forma, além da obtenção computacional dos resultados, busca-se compreender o significado e a forma de determinação das medidas calculadas, relacionando-as ao comportamento do nível d’água registrado pelos instrumentos de monitoramento.
+
+Assim, o R é utilizado não somente como ferramenta para realização dos cálculos, mas também como meio para organização, visualização e interpretação das informações provenientes do monitoramento geotécnico, permitindo associar conhecimentos de Estatística Descritiva a uma aplicação prática da Engenharia.
+
 
 ## 🎯 Objetivos
 
