@@ -1,13 +1,9 @@
 ---
-# Só mude aqui!!!!
-author: "Nome do Aluno"
-title: "Relatório de Aula Prática 03"
+author: "Leonardo Müller"
+title: "Relatório de Aula Prática 03 - Análise de Dados"
 bibliography: referencias.bib
-# A partir daqui nao faca alteracoes!!!!!
 link-citations: true
-csl: associacao-brasileira-de-normas-tecnicas-ipea.csl
 subtitle: "<a href='https://bendeivide.github.io/courses/epaec/' target='_blank'>Estatística e Probabilidade</a> </br> <a href='https://bendeivide.github.io' target='_blank'>Prof. Ben Dêivide (DEFIM/CAP/UFSJ)</a>"
-include-before-body: header.html
 date: now
 date-format: "DD/MM/YYYY, HH:mm"
 lang: pt-BR
@@ -16,8 +12,8 @@ format:
     toc: true
     number-sections: true
     theme: bootstrap
-    #css: styles.css
     code-fold: true
+    code-summary: "Mostrar código"
     code-tools: true
 execute:
   echo: true
@@ -25,102 +21,1467 @@ execute:
   message: false
 ---
 
+```{r}
+#| include: false
+
+library(tidyverse)
+
+dados <- read_csv2(
+  "base_processamento_dados_engenharia_civil.csv",
+  show_col_types = FALSE
+)
+```
 
 ## 📌 Introdução
 
-Descreva o contexto da prática e sua importância.
+A utilização de ferramentas computacionais para organização, processamento e análise de dados é uma etapa importante na Engenharia Civil, especialmente em atividades que envolvem grande quantidade de registros de campo, ensaios laboratoriais e informações de controle tecnológico. Antes que esses dados sejam utilizados para análises estatísticas e tomada de decisão, é necessário verificar sua estrutura, identificar possíveis inconsistências e avaliar a qualidade das informações disponíveis.
 
-> Exemplo: análise da variabilidade em experimentos físicos utilizando uma catapulta.
+No ambiente R, a família `tidyverse` reúne pacotes desenvolvidos com uma filosofia comum para importação, transformação, organização e visualização de dados. Entre seus principais recursos estão o `dplyr`, utilizado para manipulação de dados; o `tidyr`, para reorganização das bases; o `stringr`, para tratamento de textos; o `readr`, para importação e conversão de dados; o `purrr`, para aplicação sistemática de funções; e o `ggplot2`, para construção de visualizações [@Wickham2019; @Wickham2023].
 
-
+Neste relatório, essas ferramentas são aplicadas ao mesmo banco de dados de controle tecnológico do concreto utilizado no Relatório 02. O objetivo é realizar novamente as etapas de inspeção, diagnóstico, limpeza e exploração dos dados, agora priorizando a sintaxe e os fluxos de transformação do `tidyverse`, além de ampliar a análise por meio de recursos de visualização gráfica.
 
 ## 🎯 Objetivos
 
 ### Objetivo geral
 
-Descrever o objetivo principal da prática.
+Aplicar ferramentas da família `tidyverse` no processamento, tratamento, transformação, visualização e análise de uma base de dados de controle tecnológico do concreto.
 
 ### Objetivos específicos
 
-- Coletar dados experimentais  
-- Aplicar estatística descritiva  
-- Construir gráficos  
-- Interpretar resultados  
+- Importar e inspecionar a base utilizando funções do `readr`, `dplyr` e `purrr`;
+- Identificar valores ausentes, erros de digitação, inconsistências de categorias e valores potencialmente incompatíveis;
+- Realizar a limpeza e padronização das variáveis utilizando `dplyr`, `stringr` e `readr`;
+- Utilizar fluxos de transformação com o operador `|>`;
+- Obter estatísticas descritivas por meio de `group_by()`, `summarise()` e `across()`;
+- Criar variáveis derivadas utilizando `mutate()` e `case_when()`;
+- Reorganizar e explorar dados com recursos do `tidyr`;
+- Produzir gráficos com `ggplot2` para auxiliar a interpretação das propriedades do concreto;
+- Avaliar relações entre resistência, idade, dosagem e localização na obra;
+- Produzir informações que possam auxiliar a interpretação técnica e a tomada de decisão na Engenharia Civil.
 
 ---
 
-## 📚  Fundamentação Teórica
+## 📚 Fundamentação Teórica
 
-Apresente os conceitos principais:
+A linguagem R é um ambiente voltado à manipulação, análise estatística e representação de dados. A organização adequada das informações e o conhecimento da estrutura dos objetos são fundamentais para que os resultados obtidos sejam coerentes com o problema analisado [@BatistaOliveira2022].
 
-- Média
-- Variância
-- Desvio padrão
-- Amostragem
+O `tidyverse` é um conjunto de pacotes que compartilham princípios de projeto, estruturas de dados e formas semelhantes de programação. Essa integração permite construir fluxos de processamento em que diferentes etapas — como importar, selecionar, filtrar, transformar, agrupar, resumir e visualizar — são organizadas de forma sequencial e legível [@Wickham2019]. O operador `|>` favorece esse tipo de construção, permitindo acompanhar a transformação do objeto ao longo das diferentes funções.
 
-$$
-\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
-$$
+Entre as ferramentas utilizadas neste trabalho, o `dplyr` fornece funções como `filter()`, `select()`, `mutate()`, `group_by()` e `summarise()`, enquanto o `stringr` oferece funções específicas para tratamento de textos. O `readr` permite importar e converter valores de forma controlada, e o `ggplot2` utiliza uma estrutura em camadas para representar graficamente distribuições e relações entre variáveis [@Wickham2023].
 
----
+A estatística descritiva permite organizar e resumir os principais aspectos de uma base por meio de medidas de posição, dispersão e representações gráficas. Entretanto, essas medidas devem ser interpretadas considerando o significado físico das variáveis e a qualidade dos registros utilizados. Dados inconsistentes podem produzir médias, correlações ou gráficos aparentemente válidos, mas tecnicamente inadequados [@Batista2024].
 
 ## ⚙️ Metodologia
 
-::: {.callout-note}
-Descreva como o experimento foi realizado.
-:::
+O trabalho foi desenvolvido utilizando a linguagem R e priorizando funções da família `tidyverse`. Foi analisada uma base de controle tecnológico do concreto composta por 100 observações e 10 variáveis. O arquivo foi importado com `read_csv2()` e mantido sem alterações durante as etapas iniciais de diagnóstico.
 
-- Materiais utilizados  
-- Procedimento  
-- Número de repetições  
+Inicialmente, foram avaliadas a estrutura, os tipos das variáveis, os valores ausentes e possíveis inconsistências. Em seguida, foi criada uma cópia denominada `dados_limpos`, utilizada para padronização das categorias e conversão das variáveis quantitativas. As análises posteriores foram realizadas somente após a verificação da base tratada.
+
+As etapas de exploração utilizaram principalmente `filter()`, `select()`, `mutate()`, `group_by()`, `summarise()`, `arrange()`, `count()`, `distinct()` e `across()`. Para tratamento textual foram utilizadas funções do `stringr`, e para visualização foram construídos gráficos com `ggplot2`.
+
+### Etapa 1 – Conhecendo a base
+
+Questões 1 a 6: importação, dimensões da base, estrutura, resumo das variáveis, tipos de dados e investigação sistemática de valores ausentes.
+
+### Etapa 2 – Investigando problemas nos dados
+
+Questões 7 a 11: identificação de valores incompatíveis, possíveis erros de digitação, categorias não padronizadas e avaliação dos tipos das variáveis.
+
+### Etapa 3 – Limpeza e transformação da base
+
+Questões 12 a 16: preservação da base original, padronização textual, conversão das variáveis quantitativas, tratamento dos valores ausentes e verificação da estrutura após a limpeza.
+
+### Etapa 4 – Explorando os dados com `dplyr`
+
+Questões 17 a 20: cálculo da resistência média, comparações entre obras e classes e obtenção de estatísticas agrupadas.
+
+### Etapa 5 – Criando novas variáveis com `mutate()`
+
+Questões 21 a 23: criação das variáveis `resistencia_relativa`, `classificacao` e `acima_media`.
+
+### Etapa 6 – Trabalhando com dados agrupados
+
+Questões 24 a 26: contagem de observações por classe e cálculo simultâneo de diferentes estatísticas de resistência.
+
+### Etapa 7 – Selecionando e reorganizando variáveis
+
+Questões 27 a 30: seleção das propriedades quantitativas, aplicação de `across()`, padronização das variáveis e produção de resumos com múltiplas estatísticas.
+
+### Etapa 8 – Trabalhando com textos e categorias
+
+Questões 31 e 32: padronização textual com `stringr` e utilização de padrões de busca com `str_detect()`.
+
+### Etapa 9 – Visualização dos dados
+
+Questões 33 a 35: construção de gráficos para comparar classes de concreto e investigar as relações entre resistência, consumo de cimento e relação água/cimento.
+
+### Etapa 10 – Aplicações próximas da prática profissional
+
+Questões 36 a 38: avaliação do desempenho dos concretos entre blocos, relação entre idade e resistência e construção de uma tabela-resumo para o engenheiro responsável.
+
+### Desafio Final – O engenheiro responsável pelos dados
+
+Como etapa final, é apresentado um script de inspeção e tratamento priorizando funções do `tidyverse`, organizado de forma que possa ser compreendido e reaproveitado. O procedimento diferencia padronizações que podem ser automatizadas de situações que necessitam de análise técnica posterior e inclui estatísticas descritivas, variáveis derivadas e visualizações.
 
 ---
 
 ## 🔍 Resultados e Discussão
 
-Apresente e interprete os resultados obtidos a partir dos dados coletados.
+### Etapa 1 – Conhecendo a base
 
-- Descreva os principais resultados numéricos (média, variabilidade, etc.).
-- Comente o comportamento dos dados observados nos gráficos.
-- Indique se há presença de valores discrepantes (outliers).
-- Avalie se os dados apresentam simetria ou tendência.
+#### Questão 1 — Importação e visualização inicial
+Importe a base de dados no R e atribua-a ao objeto dados.
 
-Em seguida, discuta os resultados à luz dos conceitos teóricos:
+Verifique se a importação foi realizada corretamente.
 
-- Os resultados estão de acordo com o esperado?
-- Há grande variabilidade? O que isso significa no contexto do experimento?
-- Quais fatores podem ter influenciado os resultados?
-- Existem possíveis fontes de erro experimental?
+Utilize funções da família tidyverse para visualizar as primeiras e as últimas observações.
 
-Procure não apenas descrever, mas **interpretar os dados**.
-
-### 💬 Exemplo de como citar uma referência bibliográfica
-
-Depois de inserido as informaçõe no arquivo **referencias.bib**, use:
-
-- Segundo @Rbasico2022
-- Tudo é um objeto em R [@Rbasico2022]
-
-### 📊  Análise de Dados
+A base foi importada por meio de `read_csv2()` e atribuída ao objeto `dados`. Para verificar a importação, foram utilizadas `slice_head()` e `slice_tail()`, permitindo visualizar as primeiras e as últimas observações sem alterar a base.
 
 ```{r}
-distancia <- c(10.2, 9.8, 10.5, 10.1, 9.9, 10.3)
-distancia
+dados |>
+  slice_head(n = 6)
+
+dados |>
+  slice_tail(n = 6)
 ```
+
+A visualização confirma a presença das dez variáveis previstas no enunciado e permite uma primeira conferência dos valores registrados.
+
+#### Questão 2 — Número de observações e variáveis
+Quantas observações e quantas variáveis existem na base?
+
+Apresente um código R que permita responder à questão utilizando funções da família tidyverse.
+
+```{r}
+dados |>
+  summarise(
+    observacoes = n(),
+    variaveis = ncol(pick(everything()))
+  )
+```
+
+A base possui **100 observações e 10 variáveis**. Cada observação representa um corpo de prova ou registro de controle tecnológico, enquanto as colunas armazenam as características associadas a esse registro.
+
+#### Questão 3 — Estrutura da base
+Apresente a estrutura da base utilizando uma função apropriada do tidyverse.
+
+Analise o resultado obtido.
+
+```{r}
+dados |>
+  glimpse()
+```
+
+A função `glimpse()` permite visualizar de forma compacta o número de linhas e colunas, os nomes das variáveis, suas classes e alguns valores. Na importação inicial, `idade_dias` é reconhecida como variável quantitativa, enquanto diversas propriedades que deveriam ser numéricas apresentam problemas de interpretação devido às inconsistências de preenchimento existentes na base.
+
+Essa inspeção mostra que a classificação realizada automaticamente pelo R deve ser conferida antes das análises, pois o tipo armazenado nem sempre corresponde ao significado técnico da variável.
+
+#### Questão 4 — Resumo das variáveis
+Apresente um resumo das variáveis da base utilizando recursos do tidyverse.
+
+Quais informações chamam sua atenção?
+
+```{r}
+dados |>
+  map(summary)
+```
+
+O resumo obtido com `map(summary)` permitiu avaliar inicialmente todas as variáveis da base. A variável `idade_dias` foi reconhecida como numérica e apresentou valores entre **7 e 280 dias**, sendo o valor máximo de 280 dias bastante superior às demais idades observadas e, portanto, um registro que merece investigação.
+
+Também chama atenção o fato de `resistencia_mpa`, `cimento_kg_m3`, `relacao_a_c` e `absorção_agregado_pct` terem sido importadas como texto, apesar de representarem grandezas quantitativas. Já `abatimento_mm` e `densidade_kg_m3` foram reconhecidas como numéricas, porém apresentam valores com ordem de grandeza aparentemente incorreta. Por exemplo, o abatimento apresenta média de **1217 mm** e máximo de **12500 mm**, enquanto a densidade apresenta valores próximos de **23000 kg/m³**. Esses resultados indicam que os pontos utilizados como separadores decimais foram interpretados de forma inadequada durante a importação.
+
+Foram ainda identificados valores ausentes em `resistencia_mpa`, `relacao_a_c`, `abatimento_mm`, `densidade_kg_m3` e `absorção_agregado_pct`. Na variável `tipo_concreto`, foram encontradas **cinco categorias distintas**, embora sejam esperadas apenas quatro classes, indicando uma possível inconsistência de padronização.
+
+Em comparação com o Relatório 02, a utilização de `read_csv2()` produziu algumas diferenças já na importação: os campos vazios passaram a ser reconhecidos diretamente como `NA` e a variável `obra` apresentou quatro categorias, mas algumas variáveis numéricas foram interpretadas de maneira inadequada devido ao formato decimal. Dessa forma, o resumo confirma a necessidade de investigar e tratar a base antes das análises estatísticas posteriores.
+
+#### Questão 5 — Variáveis quantitativas e qualitativas
+Quais variáveis foram reconhecidas pelo R como quantitativas e quais foram reconhecidas como qualitativas?
+
+Utilize funções do tidyverse para investigar os tipos das variáveis.
+
+Justifique sua resposta.
+
+```{r}
+dados |>
+  map_chr(~ class(.x)[1])
+```
+
+A partir da função `map_chr()`, verificou-se que as variáveis `idade_dias`, `abatimento_mm` e `densidade_kg_m3` foram reconhecidas pelo R como quantitativas, sendo classificadas como `numeric`. Já `id_corpo_prova`, `obra`, `tipo_concreto`, `resistencia_mpa`, `cimento_kg_m3`, `relacao_a_c` e `absorção_agregado_pct` foram importadas como `character`.
+
+Entretanto, o tipo atribuído pelo R não corresponde necessariamente à natureza da variável. `resistencia_mpa`, `cimento_kg_m3`, `relacao_a_c` e `absorção_agregado_pct` também representam grandezas quantitativas, apesar de terem sido armazenadas como texto devido a problemas de formatação ou digitação presentes na base.
+
+Por outro lado, `id_corpo_prova`, `obra` e `tipo_concreto` possuem natureza qualitativa. A primeira funciona como um identificador, enquanto `obra` e `tipo_concreto` representam categorias.
+
+Também é importante destacar que `abatimento_mm` e `densidade_kg_m3`, embora tenham sido reconhecidas como numéricas, apresentaram valores com ordem de grandeza incorreta durante a importação. Portanto, o reconhecimento de uma variável como `numeric` não garante, por si só, que seus valores tenham sido interpretados corretamente.
+
+#### Questão 6 — Valores ausentes
+Verifique a existência de valores ausentes na base.
+
+Responda:
+
+Quantos valores ausentes existem?
+Em quais variáveis eles aparecem?
+Em quais observações eles aparecem?
+
+```{r}
+# Quantidade de valores ausentes por variável
+dados |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.x))
+    )
+  )
+
+# Observações que contêm pelo menos um valor ausente
+dados |>
+  mutate(linha = row_number(), .before = 1) |>
+  filter(if_any(everything(), is.na))
+```
+
+Foram identificados **5 valores ausentes** na base de dados. Eles estão distribuídos nas variáveis `resistencia_mpa`, `relacao_a_c`, `abatimento_mm`, `densidade_kg_m3` e `absorção_agregado_pct`, com uma ocorrência em cada variável.
+
+Os valores ausentes aparecem nas seguintes observações: **CP-015**, com ausência em `abatimento_mm`; **CP-038**, em `relacao_a_c`; **CP-077**, em `densidade_kg_m3`; **CP-092**, em `resistencia_mpa`; e **CP-097**, em `absorção_agregado_pct`.
+
+A utilização de `across()` permitiu verificar sistematicamente a quantidade de valores ausentes em todas as variáveis, enquanto `if_any()` foi utilizado para localizar as observações que apresentam pelo menos um `NA`. Diferentemente do Relatório 02, os campos vazios foram reconhecidos diretamente como `NA` durante a importação com `read_csv2()`.
+
+### Etapa 2 – Investigando problemas nos dados
+
+#### Questão 7 — Valores potencialmente incompatíveis
+Verifique se existem valores que parecem incompatíveis com o contexto da Engenharia Civil.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+para_numero <- function(x) {
+  x |>
+    as.character() |>
+    str_replace_all(",", ".") |>
+    parse_double(na = c("", "NA"))
+}
+
+# Idades potencialmente incompatíveis
+dados |>
+  filter(idade_dias > 56)
+
+# Resistência: valores que não podem ser interpretados numericamente
+dados |>
+  filter(
+    is.na(para_numero(resistencia_mpa)) &
+      !is.na(resistencia_mpa)
+  )
+
+# Consumo de cimento: valores que não podem ser interpretados numericamente
+dados |>
+  filter(
+    is.na(para_numero(cimento_kg_m3)) &
+      !is.na(cimento_kg_m3)
+  )
+
+# Abatimentos com ordem de grandeza muito elevada
+dados |>
+  filter(abatimento_mm / 10 > 300)
+
+# Densidades muito baixas
+dados |>
+  filter(densidade_kg_m3 / 10 < 1500)
+
+# Relação água/cimento fora de uma faixa ampla de triagem
+dados |>
+  filter(
+    para_numero(relacao_a_c) < 0.30 |
+      para_numero(relacao_a_c) > 0.80
+  )
+
+# Absorções muito elevadas
+dados |>
+  filter(para_numero(`absorção_agregado_pct`) > 10)
+```
+
+A utilização dos filtros permitiu identificar registros com valores ou formatos potencialmente incompatíveis com o contexto das variáveis analisadas. Os limites utilizados possuem finalidade de diagnóstico e não representam, necessariamente, critérios normativos de aceitação.
+
+Foram identificados os seguintes casos: o corpo de prova **CP-085**, com idade de **280 dias**; o **CP-019**, com resistência registrada como `3O,4`; o **CP-064**, com consumo de cimento registrado como `390O`; o **CP-032**, com abatimento de **1250 mm**; o **CP-053**, com densidade de **238 kg/m³**; e o **CP-072**, com absorção do agregado de **18,4%**. Não foram encontrados valores da relação água/cimento fora da faixa ampla de triagem adotada.
+
+Nos casos de `abatimento_mm` e `densidade_kg_m3`, foi necessário considerar o efeito da importação com `read_csv2()`, que interpretou o ponto como separador de agrupamento e alterou a ordem de grandeza dos valores. Por isso, a divisão por 10 foi utilizada apenas durante a filtragem para recuperar temporariamente a escala original e permitir a identificação correta dos registros suspeitos.
+
+Esses resultados não significam que todos os valores identificados sejam necessariamente erros. Eles indicam registros que devem ser verificados antes da etapa de limpeza e das análises estatísticas posteriores.
+
+
+#### Questão 8 — Possíveis erros de digitação
+
+Existem valores que podem ser considerados possíveis erros de digitação?
+
+Utilize filter(), select() e outras funções do tidyverse para localizar os registros suspeitos.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados |>
+  filter(
+    str_detect(as.character(resistencia_mpa), "[A-Za-z]|,") |
+      str_detect(as.character(cimento_kg_m3), "[A-Za-z]|,") |
+      str_detect(as.character(relacao_a_c), ",")
+  ) |>
+  select(everything())
+```
+
+Foram identificadas **quatro observações** com possíveis erros de digitação ou inconsistências de padronização numérica. O corpo de prova **CP-019** apresenta o valor `3O,4` em `resistencia_mpa`, enquanto o **CP-064** apresenta `390O` em `cimento_kg_m3`. Em ambos os casos, foi utilizada a letra `O` no lugar do algarismo zero, impedindo a interpretação direta desses valores como numéricos.
+
+Também foram identificados os corpos de prova **CP-008**, com resistência registrada como `38,7`, e **CP-045**, com relação água/cimento registrada como `0,55`. Nesses casos, foi utilizada a vírgula como separador decimal, enquanto a maior parte dos registros dessas variáveis utiliza o ponto.
+
+A combinação das funções `filter()` e `str_detect()` permitiu localizar padrões de texto incompatíveis com a formatação predominante da base sem modificar os dados originais. Esses registros deverão ser padronizados na etapa de limpeza antes da conversão definitiva das variáveis para o tipo numérico.
+
+#### Questão 9 — Padronização da variável `obra`
+Verifique se todas as categorias da variável obra estão escritas de forma padronizada.
+
+Utilize funções como count() e distinct() para identificar as categorias existentes.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados |>
+  distinct(obra)
+
+dados |>
+  count(obra, sort = TRUE)
+```
+
+A utilização de `distinct()` mostrou que a variável `obra` apresenta **quatro categorias distintas**: `Bloco A`, `Bloco B`, `Bloco C` e `Bloco D`. Portanto, considerando a base importada no Relatório 03, não foram identificadas inconsistências de escrita nessa variável.
+
+A função `count()` mostrou ainda a distribuição das observações entre as categorias: **Bloco B**, com 29 registros; **Bloco A**, com 28; **Bloco C**, com 28; e **Bloco D**, com 15.
+
+Em relação ao Relatório 02, a diferença ocorre porque `read_csv2()` realiza, por padrão, o tratamento de espaços em branco nas extremidades dos campos durante a importação. Assim, o registro anteriormente identificado como `Bloco B `, com espaço adicional ao final, passou a ser interpretado como `Bloco B`, eliminando essa inconsistência já na leitura dos dados.
+
+
+#### Questão 10 — Padronização de `tipo_concreto`
+Verifique se todas as categorias de tipo_concreto estão padronizadas.
+
+Utilize funções do tidyverse para identificar as diferentes categorias existentes.
+
+Existe alguma categoria que possa representar o mesmo tipo de concreto que outra, mas esteja escrita de maneira diferente?
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados |>
+  distinct(tipo_concreto)
+
+dados |>
+  count(tipo_concreto, sort = TRUE)
+```
+
+A função `distinct()` identificou **cinco categorias** na variável `tipo_concreto`: `C25`, `C30`, `C35`, `C40` e `c30`. Entretanto, `c30` representa a mesma classe de concreto que `C30`, diferenciando-se apenas pelo uso de letra minúscula.
+
+A função `count()` mostrou que `C30` possui 31 registros, `C25` possui 29, `C35` possui 23, `C40` possui 16 e `c30` possui 1 registro.
+
+Como o R diferencia letras maiúsculas de minúsculas, `C30` e `c30` são tratados como categorias distintas. Portanto, a variável `tipo_concreto` não está completamente padronizada e o registro `c30` deverá ser corrigido para `C30` na etapa de limpeza da base.
+
+
+#### Questão 11 — Tipos das variáveis após o diagnóstico
+Verifique novamente os tipos das variáveis depois de identificar os problemas.
+
+Utilize glimpse() e outras funções apropriadas.
+
+Questão para reflexão: Por que um único valor digitado incorretamente pode alterar a maneira como o R interpreta uma variável inteira?
+
+```{r}
+dados |>
+  glimpse()
+
+dados |>
+  map_chr(~ class(.x)[1])
+```
+
+A nova verificação mostra que os tipos das variáveis permanecem os mesmos, pois a base original `dados` ainda não foi modificada.
+
+As variáveis `idade_dias`, `abatimento_mm` e `densidade_kg_m3` foram reconhecidas como `numeric`. Já `id_corpo_prova`, `obra`, `tipo_concreto`, `resistencia_mpa`, `cimento_kg_m3`, `relacao_a_c` e `absorção_agregado_pct` permanecem como `character`.
+
+No caso de `resistencia_mpa`, `cimento_kg_m3`, `relacao_a_c` e `absorção_agregado_pct`, essa classificação está relacionada às inconsistências identificadas, como presença de letras e diferentes separadores decimais. Como cada coluna precisa possuir um tipo de dado compatível com todos os seus registros, um único valor incorreto pode fazer com que toda a variável seja interpretada como texto.
+
+Além disso, embora `abatimento_mm` e `densidade_kg_m3` tenham sido reconhecidas como numéricas, seus valores foram importados com ordem de grandeza inadequada, mostrando que o tipo `numeric` não garante, por si só, que a interpretação dos dados esteja correta.
+
+### Etapa 3 – Limpeza e transformação da base
+
+#### Questão 12 — Preservação da base original
+Crie uma cópia da base original chamada dados_limpos.
+Por que é recomendável preservar a base original?
+
+```{r}
+dados_limpos <- dados
+```
+
+Foi criada uma cópia denominada `dados_limpos`. Preservar `dados` é importante para manter os registros brutos disponíveis para consulta, permitir a comparação entre antes e depois da limpeza e possibilitar a revisão de alguma transformação caso seja necessário.
+
+#### Questão 13 — Padronização das variáveis qualitativas
+Corrija os problemas encontrados nas variáveis qualitativas, de modo que suas categorias fiquem padronizadas.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos <- dados_limpos |>
+  mutate(
+    obra = obra |>
+      str_trim() |>
+      str_squish() |>
+      str_to_title(),
+    tipo_concreto = tipo_concreto |>
+      str_trim() |>
+      str_to_upper()
+  )
+
+dados_limpos |>
+  count(obra)
+
+dados_limpos |>
+  count(tipo_concreto)
+```
+
+As variáveis qualitativas foram padronizadas com funções do pacote `stringr`. Para `obra`, foram removidos possíveis espaços excedentes e padronizada a escrita, permanecendo quatro categorias: `Bloco A`, `Bloco B`, `Bloco C` e `Bloco D`.
+
+Para `tipo_concreto`, os valores foram convertidos para letras maiúsculas. Dessa forma, o registro `c30` foi corrigido para `C30`, reduzindo o número de categorias de cinco para quatro. Após a padronização, foram obtidos 29 registros de `C25`, 32 de `C30`, 23 de `C35` e 16 de `C40`.
+
+A utilização dessas funções evita que diferenças apenas de formatação sejam interpretadas como categorias distintas durante as análises.
+
+#### Questão 14 — Conversão das variáveis quantitativas
+Converta para o tipo adequado as variáveis que deveriam ser quantitativas.
+Utilize funções do pacote readr, quando apropriado, para realizar a conversão.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos <- dados_limpos |>
+  mutate(
+    idade_dias = if_else(
+      idade_dias == 280,
+      28,
+      idade_dias
+    ),
+
+    resistencia_mpa = resistencia_mpa |>
+      str_replace_all(",", ".") |>
+      str_replace(fixed("3O.4"), "30.4") |>
+      parse_double(),
+
+    cimento_kg_m3 = cimento_kg_m3 |>
+      str_replace(fixed("390O"), "390") |>
+      parse_double(),
+
+    relacao_a_c = relacao_a_c |>
+      str_replace_all(",", ".") |>
+      parse_double(),
+
+    abatimento_mm = abatimento_mm / 10,
+    abatimento_mm = if_else(
+      abatimento_mm == 1250,
+      125,
+      abatimento_mm
+    ),
+
+    densidade_kg_m3 = densidade_kg_m3 / 10,
+    densidade_kg_m3 = if_else(
+      densidade_kg_m3 == 238,
+      2380,
+      densidade_kg_m3
+    ),
+
+    `absorção_agregado_pct` = `absorção_agregado_pct` |>
+      str_replace(fixed("18.4"), "1.84") |>
+      parse_double()
+  )
+
+dados_limpos |>
+  glimpse()
+
+dados_limpos |>
+  select(
+    idade_dias,
+    resistencia_mpa,
+    cimento_kg_m3,
+    relacao_a_c,
+    abatimento_mm,
+    densidade_kg_m3,
+    `absorção_agregado_pct`
+  ) |>
+  summary()
+```
+
+As variáveis quantitativas foram corrigidas e convertidas para o tipo numérico. Foram tratados erros de digitação, diferenças de separador decimal e valores com ordem de grandeza inadequada decorrentes da importação.
+
+Após a limpeza, todas as propriedades quantitativas passaram a ser reconhecidas como `<dbl>`. Os resultados também apresentaram faixas mais coerentes, com idade máxima de 56 dias, resistência entre 19,0 e 47,5 MPa, abatimento entre 64 e 175 mm, densidade entre 2293 e 2464 kg/m³ e absorção entre 0,80% e 2,92%.
+
+As correções permitem que essas variáveis sejam utilizadas adequadamente nas análises estatísticas posteriores. Os valores ausentes permanecem representados como `NA` e serão avaliados separadamente.
+
+
+#### Questão 15 — Tratamento dos valores ausentes
+Identifique os valores ausentes.
+
+Utilize recursos do dplyr para investigar a distribuição dos NA.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.x))
+    )
+  )
+
+dados_limpos |>
+  filter(if_any(everything(), is.na))
+```
+
+Após a limpeza, permanecem **cinco valores ausentes**, referentes aos corpos de prova CP-015, CP-038, CP-077, CP-092 e CP-097. As ausências ocorrem, respectivamente, nas variáveis `abatimento_mm`, `relacao_a_c`, `densidade_kg_m3`, `resistencia_mpa` e `absorção_agregado_pct`.
+
+A exclusão completa desses registros não é recomendada, pois cada linha apresenta apenas uma informação ausente e mantém diversos outros dados válidos. Da mesma forma, substituir automaticamente os valores pela média poderia introduzir valores não medidos e reduzir artificialmente a variabilidade dos dados.
+
+Assim, a decisão mais adequada é consultar inicialmente a fonte original. Caso não seja possível recuperar a informação, o valor deve permanecer como `NA` e ser tratado explicitamente nas análises posteriores.
+
+#### Questão 16 — Verificação após a limpeza
+Depois da limpeza, verifique novamente a estrutura e um resumo da base.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  glimpse()
+
+dados_limpos |>
+  summary()
+````
+
+Após a limpeza, as variáveis quantitativas passaram a ser reconhecidas corretamente como numéricas, enquanto `obra` e `tipo_concreto` permaneceram como variáveis de texto, agora com quatro categorias padronizadas cada.
+
+Em comparação com a base original, os valores também passaram a apresentar faixas mais coerentes: a idade máxima foi corrigida para 56 dias, o abatimento varia de 64 a 175 mm, a densidade de 2293 a 2464 kg/m³, a resistência de 19,0 a 47,5 MPa e a absorção de 0,80% a 2,92%.
+
+Os cinco valores ausentes identificados anteriormente permanecem representados como `NA`, sem exclusão ou substituição automática. Dessa forma, a base `dados_limpos` apresenta estrutura e valores mais adequados para as etapas de análise estatística.
+
+
+### Etapa 4 – Explorando os dados com `dplyr`
+
+#### Questão 17 — Resistência média
+Calcule a resistência média à compressão dos corpos de prova.
+
+Calcule também a resistência média por: bloco da obra; tipo de concreto; idade do corpo de prova.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Resistência média geral
+dados_limpos |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE)
+  )
+
+# Resistência média por bloco
+dados_limpos |>
+  group_by(obra) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Resistência média por tipo de concreto
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Resistência média por idade
+dados_limpos |>
+  group_by(idade_dias) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Análise complementar: classe + idade
+dados_limpos |>
+  group_by(tipo_concreto, idade_dias) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(tipo_concreto, idade_dias)
+```
+
+A resistência média geral foi de aproximadamente **33,55 MPa**. Entre as obras, o **Bloco B** apresentou a maior média, com **35,7 MPa**, enquanto os Blocos C e D apresentaram as menores médias, próximas de **32,4 MPa**.
+
+Por classe de concreto, observa-se aumento progressivo da resistência média: **27,1 MPa para C25, 32,1 MPa para C30, 37,1 MPa para C35 e 43,3 MPa para C40**, comportamento coerente com o aumento da classe de resistência.
+
+Quando analisada apenas por idade, a resistência média passa de **28,8 MPa aos 7 dias** para aproximadamente **34,7 MPa aos 14 e 28 dias**, reduzindo para **33,1 MPa aos 56 dias**. Entretanto, essa comparação mistura diferentes classes de concreto. Ao analisar classe e idade em conjunto, C30 e C35 apresentam tendência mais clara de aumento da resistência com a idade,enquanto C25 apresenta oscilações e C40 não possui dados aos 56 dias. Portanto, a influência da idade deve ser interpretada considerando também a classe do concreto.
+
+O cálculo da média não é diferente entre Base R e tidyverse, pois funções como `mean()` continuam sendo utilizadas. A principal diferença está na organização do código. No tidyverse, funções como `group_by()`, `summarise()` e `across()` facilitam o cálculo de estatísticas por grupos e para várias variáveis, tornando o procedimento mais legível e integrado ao fluxo de análise. No Base R, resultados semelhantes podem ser obtidos com funções como `aggregate()` e `tapply()`, porém com uma sintaxe e organização diferentes.
+
+
+#### Questão 18 — Comparação entre obras
+Qual bloco da obra apresentou a maior resistência média?
+Qual apresentou a menor?
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  group_by(obra) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(desc(resistencia_media))
+```
+
+O **Bloco B** apresentou a maior resistência média, com aproximadamente **35,70 MPa**. O **Bloco C** apresentou a menor média, com aproximadamente **32,37 MPa**, valor muito próximo ao Bloco D, com 32,39 MPa.
+
+A utilização de `arrange(desc())` permite organizar diretamente os resultados da maior para a menor média.
+
+#### Questão 19 — Resistência por tipo de concreto
+Calcule a resistência média para cada classe de concreto:C25; C30; C35; C40.
+Qual classe apresentou a maior resistência média?
+
+```{r}
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(desc(resistencia_media))
+```
+
+A classe **C40** apresentou a maior resistência média, com aproximadamente **43,3 MPa**, seguida por **C35**, com **37,1 MPa**, **C30**, com **32,1 MPa**, e **C25**, com **27,1 MPa**.
+
+Os resultados mostram uma progressão coerente entre a classe do concreto e a resistência média observada, com aumento da resistência conforme aumenta a classe especificada. A utilização de `arrange(desc())` facilita a comparação ao ordenar diretamente as classes da maior para a menor resistência média.
+
+#### Questão 20 — Estatísticas por grupo
+Utilizando group_by() e summarise(), obtenha a média das seguintes variáveis para cada tipo de concreto: resistência; consumo de cimento; relação água/cimento; abatimento; densidade.
+Interprete os resultados obtidos.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+variaveis_propriedades <- c(
+  "resistencia_mpa",
+  "cimento_kg_m3",
+  "relacao_a_c",
+  "abatimento_mm",
+  "densidade_kg_m3"
+)
+
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    across(
+      all_of(variaveis_propriedades),
+      ~ mean(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  )
+```
+
+A análise das médias por classe mostra que a resistência aumenta de aproximadamente **27,1 MPa no C25 para 43,3 MPa no C40**. O consumo médio de cimento também aumenta, passando de aproximadamente **323 para 404 kg/m³**, enquanto a relação água/cimento diminui de **0,620 para 0,478**.
+
+O abatimento apresenta tendência de redução entre as classes, enquanto a densidade varia relativamente pouco, permanecendo em valores próximos entre os diferentes tipos de concreto.
+
+A combinação de `group_by()`, `summarise()` e `across()` permite calcular a mesma estatística para várias propriedades simultaneamente, evitando a repetição do código e facilitando a comparação entre as classes de concreto.
+
+
+### Etapa 5 – Criando novas variáveis com `mutate()`
+
+#### Questão 21 — Resistência relativa
+Crie uma variável chamada resistencia_relativa, representando a razão entre a resistência observada e uma resistência de referência associada à classe do concreto.
+
+Utilize mutate() e case_when().
+
+Explique como você definiu a resistência de referência para cada classe.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos <- dados_limpos |>
+  mutate(
+    resistencia_referencia = case_when(
+      tipo_concreto == "C25" ~ 25,
+      tipo_concreto == "C30" ~ 30,
+      tipo_concreto == "C35" ~ 35,
+      tipo_concreto == "C40" ~ 40,
+      TRUE ~ NA_real_
+    ),
+    resistencia_relativa =
+      resistencia_mpa / resistencia_referencia
+  )
+
+dados_limpos |>
+  select(
+    id_corpo_prova,
+    tipo_concreto,
+    resistencia_mpa,
+    resistencia_referencia,
+    resistencia_relativa
+  ) |>
+  slice_head(n = 10)
+```
+
+Foram criadas as variáveis `resistencia_referencia` e `resistencia_relativa`. A resistência de referência foi associada à denominação de cada classe: **25 MPa para C25, 30 MPa para C30, 35 MPa para C35 e 40 MPa para C40**.
+
+A variável `resistencia_relativa` representa a razão entre a resistência medida e a resistência de referência. Valores **maiores que 1** indicam resistência observada acima da referência adotada, enquanto valores **menores que 1** indicam resultado abaixo dela.
+
+Essa variável facilita a comparação entre corpos de prova de diferentes classes, mas possui finalidade descritiva e não substitui critérios normativos de aceitação do concreto.
+
+
+#### Questão 22 — Classificação dos corpos de prova
+Crie uma variável denominada classificacao, classificando os corpos de prova segundo um critério relacionado à resistência. Utilize mutate() e case_when(). Você deverá definir os critérios utilizados e justificá-los tecnicamente.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos <- dados_limpos |>
+  mutate(
+    classificacao = case_when(
+      is.na(resistencia_relativa) ~ NA_character_,
+      resistencia_relativa < 1 ~ "Abaixo da referência",
+      resistencia_relativa < 1.10 ~ "Atende à referência",
+      TRUE ~ "Acima da referência"
+    )
+  )
+
+dados_limpos |>
+  count(classificacao, .drop = FALSE)
+```
+
+Com base na resistência relativa, foram adotados três grupos descritivos: valores inferiores a 1 foram classificados como **Abaixo da referência**; valores entre 1 e 1,10 como **Atende à referência**; e valores iguais ou superiores a 1,10 como **Acima da referência**.
+
+Foram identificados **24 corpos de prova abaixo da referência, 33 atendendo à referência e 42 acima da referência**. Um registro permaneceu sem classificação devido à ausência do valor de resistência.
+
+Essas faixas foram adotadas para facilitar a análise comparativa dos dados e **não representam critérios normativos de aceitação do concreto**.
+
+#### Questão 23 — Resistência acima da média da classe
+Crie uma variável denominada acima_media, indicando se a resistência do corpo de prova está acima ou abaixo da resistência média de seu respectivo tipo de concreto.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos <- dados_limpos |>
+  group_by(tipo_concreto) |>
+  mutate(
+    acima_media =
+      resistencia_mpa > mean(resistencia_mpa, na.rm = TRUE)
+  ) |>
+  ungroup()
+
+dados_limpos |>
+  count(acima_media, .drop = FALSE)
+```
+
+A variável `acima_media` foi criada comparando a resistência de cada corpo de prova com a **média da própria classe de concreto**. Dessa forma, cada observação é avaliada em relação ao seu respectivo grupo.
+
+Foram identificados **49 corpos de prova acima da média de sua classe**, **50 iguais ou abaixo da média** e **1 registro sem classificação**, devido à ausência do valor de resistência.
+
+Essa abordagem mostra uma vantagem do uso de `group_by()` associado a `mutate()`, pois a comparação é realizada automaticamente dentro de cada grupo, sem a necessidade de calcular manualmente as médias de C25, C30, C35 e C40.
+
+
+### Etapa 6 – Trabalhando com dados agrupados
+
+#### Questão 24 — Número de observações por classe
+Utilize group_by() e summarise() para determinar quantas observações existem em cada grupo de tipo_concreto.
+Apresente o resultado em uma tabela organizada.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    n_observacoes = n(),
+    .groups = "drop"
+  ) |>
+  arrange(tipo_concreto) |>
+  knitr::kable(
+    col.names = c(
+      "Classe do concreto",
+      "Número de observações"
+    ),
+    caption = "Número de observações por classe de concreto",
+    align = c("c", "c")
+  )
+```
+
+A organização dos dados por classe de concreto mostrou **29 observações para C25, 32 para C30, 23 para C35 e 16 para C40**, totalizando as **100 observações** da base de dados.
+
+A classe **C30** possui o maior número de registros, enquanto a classe **C40** apresenta a menor quantidade.
+
+A utilização de `group_by()` e `summarise()` permite realizar essa contagem por grupo, enquanto `knitr::kable()` apresenta os resultados em uma tabela organizada no relatório.
+
+
+#### Questão 25 — Resistência média por classe
+Calcule a resistência média de cada tipo de concreto utilizando:`group_by()`; `summarise()`.Depois, ordene os resultados utilizando arrange().
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(desc(resistencia_media))
+```
+
+A ordenação das médias de resistência mostra que a classe **C40** apresentou o maior valor, com aproximadamente **43,3 MPa**, seguida por **C35**, com **37,1 MPa**, **C30**, com **32,1 MPa**, e **C25**, com **27,1 MPa**.
+
+Os resultados evidenciam uma progressão coerente entre as classes de concreto e os valores médios de resistência observados na base de dados. A utilização de `arrange(desc())` permite visualizar essa hierarquia de forma direta.
+
+#### Questão 26 — Múltiplas estatísticas de resistência
+Calcule simultaneamente diferentes estatísticas da variável resistencia_mpa para cada tipo de concreto.
+Obtenha, por exemplo: número de observações; média; mediana; desvio-padrão; mínimo; máximo.
+Utilize summarise().
+Explique por que uma tabela com várias estatísticas pode ser mais informativa do que apresentar apenas a média.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    n = sum(!is.na(resistencia_mpa)),
+    media = mean(resistencia_mpa, na.rm = TRUE),
+    mediana = median(resistencia_mpa, na.rm = TRUE),
+    desvio_padrao = sd(resistencia_mpa, na.rm = TRUE),
+    minimo = min(resistencia_mpa, na.rm = TRUE),
+    maximo = max(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+A análise conjunta das estatísticas mostra o aumento da resistência com a classe do concreto. As médias variaram de **27,1 MPa para C25** a **43,3 MPa para C40**, enquanto as medianas permaneceram próximas às respectivas médias.
+
+Os desvios-padrão ficaram entre aproximadamente **3,1 e 3,7 MPa**, indicando dispersões relativamente semelhantes entre as classes. Quanto aos extremos, o menor valor observado foi de **19,0 MPa no C25**, enquanto o maior foi de **47,5 MPa no C40**. A classe C35 apresentou **22 valores válidos de resistência**, embora possua 23 registros na base, devido à existência de um valor ausente.
+
+Uma tabela com várias estatísticas é mais informativa do que apresentar apenas a média porque a média representa somente a tendência central dos dados e pode ocultar diferenças importantes entre os grupos. Ao incluir **mediana, desvio-padrão, mínimo e máximo**, é possível avaliar também a dispersão, a amplitude dos resultados e a presença de valores extremos. Dessa forma, a interpretação do comportamento da resistência do concreto se torna mais completa e permite comparar as classes com maior segurança.
+
+
+
+### Etapa 7 – Selecionando e reorganizando variáveis
+
+#### Questão 27 — Seleção das propriedades quantitativas
+Selecione somente as variáveis quantitativas relacionadas às propriedades do concreto. Utilize select() e, quando apropriado, where() ou all_of().
+Apresente a nova tabela.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+variaveis_propriedades <- c(
+  "resistencia_mpa",
+  "cimento_kg_m3",
+  "relacao_a_c",
+  "abatimento_mm",
+  "densidade_kg_m3",
+  "absorção_agregado_pct"
+)
+
+dados_quantitativos <- dados_limpos |>
+  select(all_of(variaveis_propriedades))
+
+dados_quantitativos |>
+  slice_head(n = 10) |>
+  knitr::kable(
+    col.names = c(
+      "Resistência (MPa)",
+      "Cimento (kg/m³)",
+      "Relação a/c",
+      "Abatimento (mm)",
+      "Densidade (kg/m³)",
+      "Absorção do agregado (%)"
+    ),
+    caption = "Propriedades quantitativas selecionadas do concreto",
+    digits = 2
+  )
+```
+
+Foi criada uma nova tabela denominada `dados_quantitativos`, contendo apenas as propriedades quantitativas relacionadas ao concreto: **resistência, consumo de cimento, relação água/cimento, abatimento, densidade e absorção do agregado**.
+
+A variável `idade_dias`, embora numérica, não foi incluída, pois representa uma **condição de ensaio**, e não uma propriedade física do concreto.
+
+A função `select()` associada a `all_of()` permitiu selecionar as variáveis definidas previamente, formando uma nova tabela específica para as análises quantitativas. Para facilitar a visualização no relatório, foram apresentadas as **10 primeiras observações** dessa nova tabela.
+
+#### Questão 28 — Médias com `across()`
+Utilize across() para calcular a média das variáveis quantitativas selecionadas. Compare o resultado com aquele obtido utilizando summarise() individualmente para cada variável. Qual abordagem apresenta maior facilidade de manutenção quando o número de variáveis aumenta?
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Uma única operação com across()
+dados_quantitativos |>
+  summarise(
+    across(
+      everything(),
+      ~ mean(.x, na.rm = TRUE)
+    )
+  )
+
+# Forma individual para comparação
+dados_quantitativos |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    cimento_medio = mean(cimento_kg_m3, na.rm = TRUE),
+    relacao_ac_media = mean(relacao_a_c, na.rm = TRUE),
+    abatimento_medio = mean(abatimento_mm, na.rm = TRUE),
+    densidade_media = mean(densidade_kg_m3, na.rm = TRUE),
+    absorcao_media = mean(`absorção_agregado_pct`, na.rm = TRUE)
+  )
+```
+
+As duas abordagens produziram os mesmos resultados: resistência média de aproximadamente **33,55 MPa**, consumo médio de cimento de **357,62 kg/m³**, relação água/cimento média de **0,554**, abatimento médio de **110,33 mm**, densidade média de **2373,10 kg/m³** e absorção média do agregado de aproximadamente **1,79%**.
+
+A diferença está principalmente na forma de organizar o código. Na abordagem individual, é necessário escrever o cálculo da média separadamente para cada variável. Com `across()`, a mesma função é aplicada simultaneamente a todas as colunas selecionadas.
+
+Dessa forma, `across()` torna o código **mais compacto, legível e fácil de manter**, especialmente quando o banco possui muitas variáveis ou quando novas colunas precisam ser incluídas posteriormente.
+
+
+#### Questão 29 — Transformação simultânea com `mutate()` e `across()`
+Utilize mutate() e across() para realizar uma transformação simultânea em um conjunto de variáveis quantitativas. Escolha uma transformação coerente com o problema e explique sua finalidade.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_padronizados <- dados_limpos |>
+  mutate(
+    across(
+      all_of(variaveis_propriedades),
+      ~ (.x - mean(.x, na.rm = TRUE)) /
+        sd(.x, na.rm = TRUE),
+      .names = "{.col}_z"
+    )
+  )
+
+dados_padronizados |>
+  select(
+    id_corpo_prova,
+    ends_with("_z")
+  ) |>
+  slice_head(n = 10)
+```
+
+Foi aplicada a padronização estatística pelo escore z às propriedades quantitativas utilizando `mutate()` em conjunto com `across()`. Essa transformação expressa cada valor em termos do número de desvios-padrão em relação à média da respectiva variável.
+
+Valores próximos de zero representam observações próximas da média; valores **positivos** indicam resultados acima da média e valores **negativos**, abaixo da média. Por exemplo, o corpo de prova CP-004 apresentou resistência padronizada de aproximadamente **2,09**, indicando uma resistência cerca de 2,09 desvios-padrão acima da média geral.
+
+A padronização é útil porque permite comparar variáveis originalmente expressas em **unidades e escalas diferentes**, como MPa, kg/m³, milímetros e porcentagem.
+
+O uso de `across()` possibilitou aplicar a mesma transformação simultaneamente às seis propriedades, enquanto `.names = "{.col}_z"` criou novas colunas sem substituir os valores originais.
+
+
+#### Questão 30 — Múltiplas estatísticas com `across()`
+Utilize across() em conjunto com summarise() para obter, por tipo de concreto, pelo menos duas estatísticas para cada variável quantitativa selecionada. Apresente o resultado de forma organizada. Compare essa solução com a utilização de vários comandos separados.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    across(
+      all_of(variaveis_propriedades),
+      list(
+        media = ~ mean(.x, na.rm = TRUE),
+        dp = ~ sd(.x, na.rm = TRUE)
+      ),
+      .names = "{.col}_{.fn}"
+    ),
+    .groups = "drop"
+  )
+```
+
+A combinação de `summarise()` com `across()` permitiu calcular simultaneamente a **média e o desvio-padrão** das seis propriedades quantitativas para cada classe de concreto, reunindo os resultados em uma única tabela.
+
+Para a resistência à compressão, observa-se aumento da média conforme a classe do concreto: **27,1 MPa no C25, 32,1 MPa no C30, 37,1 MPa no C35 e 43,3 MPa no C40**. Os desvios-padrão ficaram entre **3,07 e 3,68 MPa**, indicando níveis de dispersão relativamente próximos entre as classes.
+
+O uso de `across()` reduz a repetição do código, pois as mesmas estatísticas são aplicadas simultaneamente a todas as propriedades selecionadas. Além disso, a definição `.names = "{.col}_{.fn}"` identifica automaticamente a variável e a estatística correspondente, facilitando a organização e a interpretação dos resultados.
+
+
+### Etapa 8 – Trabalhando com textos e categorias
+
+#### Questão 31 — Padronização da variável `obra`
+Utilize funções do pacote stringr para verificar e padronizar os valores da variável obra.
+
+Investigue:
+
+espaços no início ou no final dos textos;
+diferenças entre letras maiúsculas e minúsculas;
+possíveis grafias diferentes para uma mesma categoria.
+Apresente o antes e o depois da padronização.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Antes
+dados |>
+  count(obra, sort = TRUE)
+
+# Padronização
+comparacao_obra <- dados |>
+  transmute(
+    obra_original = obra,
+    obra_padronizada = obra |>
+      str_trim() |>
+      str_squish() |>
+      str_to_title()
+  )
+
+# Comparação antes e depois
+comparacao_obra |>
+  distinct(
+    obra_original,
+    obra_padronizada
+  )
+
+comparacao_obra |>
+  count(obra_padronizada)
+```
+
+Antes da aplicação das funções do `stringr`, a variável `obra` já apresentava **quatro categorias padronizadas**: Bloco A, Bloco B, Bloco C e Bloco D, com respectivamente 28, 29, 28 e 15 observações.
+
+Foram aplicadas as funções `str_trim()`, `str_squish()` e `str_to_title()` para remover possíveis espaços excedentes e uniformizar a escrita das categorias. Entretanto, a comparação entre os valores originais e padronizados não apresentou alterações.
+
+Isso ocorre porque a própria importação realizada com `read_csv2()` já removeu os espaços externos existentes no arquivo. Mesmo sem produzir mudanças nesta base, a aplicação das funções do `stringr` é útil como procedimento de padronização e prevenção de inconsistências em bases futuras.
+
+#### Questão 32 — Busca por padrões com `str_detect()`
+Utilize str_detect() para localizar registros que contenham determinado padrão textual em tipo_concreto ou obra.
+
+Crie uma condição de busca adequada aos dados.
+
+Explique como a utilização de padrões de texto pode auxiliar no diagnóstico de bases de dados.
+
+Foi utilizado o padrão `^C3`, que identifica textos iniciados por `C3`. Na base padronizada, isso seleciona as classes C30 e C35.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+dados_limpos |>
+  filter(
+    str_detect(
+      tipo_concreto,
+      "^C3"
+    )
+  ) |>
+  select(
+    id_corpo_prova,
+    obra,
+    tipo_concreto,
+    resistencia_mpa
+  ) |>
+  slice_head(n = 20)
+```
+
+Foi utilizada a função `str_detect()` com o padrão `^C3` para identificar registros cujo tipo de concreto começa com **C3**. O símbolo `^` representa o início do texto e, portanto, o padrão selecionou as classes **C30 e C35**.
+
+A filtragem retornou corretamente corpos de prova pertencentes a essas duas classes, sendo apresentadas as 20 primeiras observações para facilitar a visualização.
+
+A busca por padrões textuais é útil porque permite selecionar grupos de categorias que compartilham características na escrita sem precisar informar cada categoria individualmente. Dessa forma, funções como `str_detect()` tornam a manipulação de variáveis textuais mais flexível e eficiente.
+
+
+### Etapa 9 – Visualização dos dados
+
+#### Questão 33 — Distribuição da resistência por classe
+Produza um gráfico comparando a distribuição da resistência à compressão entre os diferentes tipos de concreto. Utilize uma geometria apropriada, como: `geom_boxplot()`. Interprete o gráfico.
+
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+ggplot(
+  dados_limpos,
+  aes(
+    x = tipo_concreto,
+    y = resistencia_mpa
+  )
+) +
+  geom_boxplot() +
+  labs(
+    title = "Distribuição da resistência por tipo de concreto",
+    x = "Tipo de concreto",
+    y = "Resistência à compressão (MPa)"
+  ) +
+  theme_minimal()
+```
+
+O boxplot mostra um **aumento progressivo da resistência à compressão** conforme cresce a classe do concreto. As medianas são aproximadamente **27,8 MPa para C25, 31,8 MPa para C30, 36,8 MPa para C35 e 43,2 MPa para C40**, evidenciando uma separação coerente entre as classes.
+
+As caixas apresentam dispersões relativamente semelhantes, embora C30 e C35 mostrem uma amplitude um pouco maior. No caso do **C25**, observa-se ainda um valor atípico inferior, próximo de **19 MPa**, destacado abaixo da distribuição principal.
+
+De forma geral, o gráfico reforça que as classes de maior resistência nominal apresentam também valores de resistência observados mais elevados, sem indicar sobreposição predominante entre os grupos.
+
+#### Questão 34 — Consumo de cimento e resistência
+Produza um gráfico investigando a relação entre:
+consumo de cimento;
+resistência à compressão.
+Utilize um gráfico de dispersão com geom_point().
+
+Acrescente, se considerar apropriado, uma linha de tendência.
+
+O gráfico fornece evidências visuais para a afirmação: “Quanto maior o consumo de cimento, maior tende a ser a resistência do concreto.”
+Justifique.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Visão geral
+ggplot(
+  dados_limpos,
+  aes(
+    x = cimento_kg_m3,
+    y = resistencia_mpa,
+    color = tipo_concreto
+  )
+) +
+  geom_point() +
+  geom_smooth(
+    aes(group = 1),
+    method = "lm",
+    se = FALSE,
+    color = "black"
+  ) +
+  labs(
+    title = "Consumo de cimento e resistência à compressão",
+    x = "Consumo de cimento (kg/m³)",
+    y = "Resistência à compressão (MPa)",
+    color = "Classe"
+  ) +
+  theme_minimal()
+
+# Relação observada dentro de cada classe
+ggplot(
+  dados_limpos,
+  aes(
+    x = cimento_kg_m3,
+    y = resistencia_mpa
+  )
+) +
+  geom_point() +
+  geom_smooth(
+    method = "lm",
+    se = FALSE
+  ) +
+  facet_wrap(~ tipo_concreto, scales = "free_x") +
+  labs(
+    title = "Consumo de cimento e resistência dentro de cada classe",
+    x = "Consumo de cimento (kg/m³)",
+    y = "Resistência à compressão (MPa)"
+  ) +
+  theme_minimal()
+```
+
+Considerando toda a base, observa-se uma **associação positiva entre o consumo de cimento e a resistência à compressão**. As classes de maior resistência também se concentram, de modo geral, em maiores consumos de cimento, produzindo uma tendência crescente no gráfico global. A correlação geral é de aproximadamente **0,78**.
+
+Entretanto, quando os dados são separados por classe de concreto, essa relação se torna muito mais fraca. O C25 apresenta uma leve tendência positiva, enquanto C30 e C35 apresentam tendências discretamente negativas e o C40 praticamente não mostra tendência. As correlações por classe são aproximadamente **0,28 para C25, -0,17 para C30, -0,24 para C35 e -0,04 para C40**.
+
+Assim, não é adequado concluir, a partir deste conjunto de dados, que simplesmente aumentar o consumo de cimento produzirá maior resistência. Parte importante da associação observada no gráfico geral decorre das **diferenças de dosagem entre as próprias classes de concreto**, e não necessariamente de uma relação direta entre as duas variáveis dentro de cada classe.
+  
+#### Questão 35 — Relação água/cimento e resistência
+Produza um gráfico para investigar a relação entre:
+
+relação água/cimento;
+resistência à compressão.
+Utilize ggplot2.
+
+Apresente o gráfico e interprete o padrão observado.
+
+Os dados apresentam alguma tendência que mereça investigação?
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Visão geral
+ggplot(
+  dados_limpos,
+  aes(
+    x = relacao_a_c,
+    y = resistencia_mpa,
+    color = tipo_concreto
+  )
+) +
+  geom_point() +
+  geom_smooth(
+    aes(group = 1),
+    method = "lm",
+    se = FALSE,
+    color = "black"
+  ) +
+  labs(
+    title = "Relação água/cimento e resistência à compressão",
+    x = "Relação água/cimento",
+    y = "Resistência à compressão (MPa)",
+    color = "Classe"
+  ) +
+  theme_minimal()
+
+# Relação dentro das classes
+ggplot(
+  dados_limpos,
+  aes(
+    x = relacao_a_c,
+    y = resistencia_mpa
+  )
+) +
+  geom_point() +
+  geom_smooth(
+    method = "lm",
+    se = FALSE
+  ) +
+  facet_wrap(~ tipo_concreto) +
+  labs(
+    title = "Relação água/cimento e resistência dentro de cada classe",
+    x = "Relação água/cimento",
+    y = "Resistência à compressão (MPa)"
+  ) +
+  theme_minimal()
+```
+
+Considerando toda a base de dados, observa-se uma **tendência negativa clara entre a relação água/cimento e a resistência à compressão**. De forma geral, os concretos com menores relações água/cimento apresentam resistências mais elevadas, enquanto relações maiores estão associadas a menores resistências. A correlação geral é de aproximadamente **-0,76**.
+
+Entretanto, ao analisar cada classe separadamente, essa tendência praticamente desaparece. As correlações são aproximadamente **0,10 para C25, -0,17 para C30, 0,11 para C35 e 0,09 para C40**, indicando relações fracas ou praticamente inexistentes dentro das próprias classes.
+
+Assim, embora o gráfico geral apresente uma associação negativa expressiva, parte importante desse comportamento está relacionada às **diferenças de dosagem entre as classes de concreto**. Portanto, os dados não permitem interpretar a correlação geral isoladamente como uma relação de mesma intensidade dentro de cada classe.
+
+### Etapa 10 – Questões próximas da prática profissional
+
+#### Questão 36 — Comparação entre obras
+
+O engenheiro responsável afirma:
+
+“Os concretos utilizados no Bloco C apresentam desempenho superior aos utilizados nos demais blocos.”
+
+Utilize dplyr e ggplot2 para verificar se os dados dão suporte a essa afirmação em termos descritivos.
+
+Não é necessário realizar um teste de hipótese. O objetivo é explorar os dados.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# 1. Resistência média por bloco
+resumo_resistencia_obra <- dados_limpos |>
+  group_by(obra) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(desc(resistencia_media))
+
+resumo_resistencia_obra
+
+# 2. Médias das propriedades por bloco
+resumo_propriedades_obra <- dados_limpos |>
+  group_by(obra) |>
+  summarise(
+    across(
+      all_of(variaveis_propriedades),
+      ~ mean(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  )
+
+resumo_propriedades_obra
+
+# 3. Médias das propriedades por bloco e classe
+resumo_obra_classe <- dados_limpos |>
+  group_by(obra, tipo_concreto) |>
+  summarise(
+    across(
+      all_of(variaveis_propriedades),
+      ~ mean(.x, na.rm = TRUE)
+    ),
+    .groups = "drop"
+  )
+
+resumo_obra_classe
+
+# Distribuição da resistência entre os blocos por classe
+ggplot(
+  dados_limpos,
+  aes(
+    x = obra,
+    y = resistencia_mpa
+  )
+) +
+  geom_boxplot() +
+  facet_wrap(~ tipo_concreto) +
+  labs(
+    title = "Resistência por bloco e tipo de concreto",
+    x = "Bloco",
+    y = "Resistência à compressão (MPa)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(
+      angle = 45,
+      hjust = 1
+    )
+  )
+```
+
+Os resultados **não sustentam a afirmação de que o Bloco C apresenta desempenho superior de forma geral**. Considerando inicialmente a resistência média de todos os concretos, o Bloco B apresentou o maior valor, com aproximadamente **35,7 MPa**, seguido pelo Bloco A com **33,2 MPa**. Os Blocos C e D apresentaram valores próximos de **32,4 MPa**.
+
+Entretanto, a comparação apenas das médias gerais pode ser inadequada, pois cada bloco possui diferentes proporções de classes de concreto. Ao comparar os blocos dentro de cada classe, observa-se que o desempenho do Bloco C varia. No C25, apresentou média de **26,9 MPa**; no C30, **32,0 MPa**; no C35, **35,1 MPa**; e no C40, aproximadamente **45,0 MPa**.
+
+No **C30**, o Bloco C apresentou resistência próxima aos demais, associada ao menor consumo médio de cimento e à menor relação água/cimento dessa classe. No **C35**, porém, apresentou a menor resistência média e o maior consumo de cimento. Já no **C40**, apresentou a maior resistência média, praticamente empatado com o Bloco D, porém com o maior consumo médio de cimento.
+
+Portanto, o Bloco C apresenta **bons resultados pontuais, especialmente no C30 e C40, mas não uma superioridade consistente entre todas as classes**. Além disso, propriedades como abatimento, densidade e absorção não devem ser classificadas simplesmente como melhores ou piores apenas por apresentarem valores maiores ou menores, pois sua avaliação depende dos requisitos técnicos estabelecidos para o concreto.
+
+
+#### Questão 37 — Idade e resistência
+Compare a resistência média dos concretos com diferentes idades. Utilize group_by() e summarise() para obter as médias. Em seguida, produza uma representação gráfica adequada. O que acontece com a resistência à medida que aumenta a idade do corpo de prova?
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+# Média geral por idade
+medias_idade <- dados_limpos |>
+  group_by(idade_dias) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+medias_idade
+
+# Média por classe e idade
+medias_idade_classe <- dados_limpos |>
+  group_by(tipo_concreto, idade_dias) |>
+  summarise(
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+medias_idade_classe
+
+# Gráfico
+ggplot(
+  medias_idade_classe,
+  aes(
+    x = idade_dias,
+    y = resistencia_media,
+    color = tipo_concreto,
+    group = tipo_concreto
+  )
+) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(
+    breaks = c(7, 14, 28, 56)
+  ) +
+  labs(
+    title = "Resistência média por idade e classe de concreto",
+    x = "Idade (dias)",
+    y = "Resistência média (MPa)",
+    color = "Classe"
+  ) +
+  theme_minimal()
+```
+
+Considerando todas as classes em conjunto, a resistência média foi de aproximadamente **28,8 MPa aos 7 dias, 34,7 MPa aos 14 dias, 34,7 MPa aos 28 dias e 33,1 MPa aos 56 dias**. Portanto, a média geral não apresenta crescimento contínuo com a idade.
+
+Quando as classes são analisadas separadamente, o comportamento se torna mais informativo. O **C30** apresenta aumento de aproximadamente **29,0 MPa aos 7 dias para 33,9 MPa aos 56 dias**, enquanto o **C35** apresenta crescimento mais acentuado, de **30,0 MPa para 42,8 MPa** no mesmo intervalo. O **C25** apresenta maior oscilação, com redução aos 14 dias, aumento aos 28 dias e pequena queda aos 56 dias. Já o **C40** apresenta valores elevados em todas as idades disponíveis, porém não possui observações aos 56 dias.
+
+Dessa forma, os dados indicam uma **tendência de aumento da resistência com a idade principalmente para as classes C30 e C35**, mas esse comportamento não é uniforme em todas as classes. Além disso, como os valores correspondem a diferentes corpos de prova, a análise deve ser entendida como uma tendência descritiva da base, e não como o acompanhamento da evolução de um mesmo corpo de prova ao longo do tempo.
+
+#### Questão 38 — Resumo para o engenheiro
+O controle tecnológico da empresa precisa produzir um relatório para o engenheiro responsável.
+
+Utilizando dplyr, construa uma tabela-resumo contendo pelo menos cinco informações estatísticas que você considera importantes para o acompanhamento da qualidade do concreto.
+
+Justifique a escolha de cada informação.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Mostrar código"
+
+tabela_engenheiro <- dados_limpos |>
+  group_by(tipo_concreto) |>
+  summarise(
+    n = sum(!is.na(resistencia_mpa)),
+    resistencia_media = mean(resistencia_mpa, na.rm = TRUE),
+    resistencia_mediana = median(resistencia_mpa, na.rm = TRUE),
+    desvio_padrao = sd(resistencia_mpa, na.rm = TRUE),
+    resistencia_minima = min(resistencia_mpa, na.rm = TRUE),
+    resistencia_maxima = max(resistencia_mpa, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+tabela_engenheiro |>
+  knitr::kable(
+    col.names = c(
+      "Classe",
+      "n",
+      "Média (MPa)",
+      "Mediana (MPa)",
+      "Desvio-padrão (MPa)",
+      "Mínimo (MPa)",
+      "Máximo (MPa)"
+    ),
+    caption = "Resumo estatístico da resistência à compressão por classe de concreto",
+    digits = 2
+  )
+```
+
+Para o acompanhamento da qualidade do concreto, foram selecionadas seis informações principais: **número de ensaios, média, mediana, desvio-padrão, resistência mínima e resistência máxima**.
+
+O **número de ensaios** indica a quantidade de resultados disponíveis e permite avaliar a representatividade de cada grupo. A **média** resume o nível geral de resistência, enquanto a **mediana** complementa essa informação por ser menos sensível a valores extremos. O **desvio-padrão** permite avaliar a dispersão e a uniformidade dos resultados. Já os valores **mínimo e máximo** mostram os extremos observados, sendo o mínimo particularmente importante para identificar resultados baixos que podem exigir investigação.
+
+Os resultados também evidenciam o crescimento da resistência entre as classes, com médias de aproximadamente **27,1 MPa no C25, 32,1 MPa no C30, 37,1 MPa no C35 e 43,3 MPa no C40**. Os desvios-padrão variaram entre aproximadamente **3,07 e 3,68 MPa**, indicando dispersões relativamente próximas.
+
+A apresentação conjunta dessas estatísticas é mais útil para a análise da qualidade do que a média isolada, pois permite avaliar simultaneamente **quantidade de dados, tendência central, variabilidade e valores extremos**, fornecendo uma visão mais completa do comportamento de cada classe de concreto.
+
+
+---
+
+## Desafio final — O engenheiro responsável pelos dados
+
+-
 
 ## 🧠 Considerações finais
 
-Apresente uma síntese dos principais pontos observados no experimento.
+O desenvolvimento deste relatório permitiu aplicar a família `tidyverse` ao processamento e à análise de dados relacionados ao controle tecnológico do concreto. Em comparação com o Relatório 02, as mesmas etapas fundamentais de inspeção, limpeza, transformação e exploração foram realizadas por meio de uma lógica baseada em fluxos de dados e funções especializadas.
 
-- Retome o objetivo da prática e indique se ele foi alcançado.
-- Destaque os principais aprendizados obtidos.
-- Comente brevemente sobre a qualidade dos dados coletados.
-- Sugira possíveis melhorias no procedimento experimental.
+A atividade evidenciou novamente que a qualidade da análise estatística depende da qualidade da base utilizada. Erros de digitação, categorias não padronizadas, valores ausentes e registros com ordem de grandeza incompatível podem alterar resultados aparentemente simples. As ferramentas de `dplyr`, `stringr` e `readr` permitiram organizar essas etapas de forma sequencial e legível, enquanto `ggplot2` acrescentou uma dimensão visual importante para a interpretação das distribuições e relações entre variáveis.
 
-Evite repetir apenas os resultados; foque nas **conclusões e reflexões** sobre a prática realizada.
+As análises também reforçaram a necessidade de interpretação técnica. A associação geral entre consumo de cimento e resistência, por exemplo, mostrou-se forte quando toda a base foi considerada, mas fraca quando as classes foram avaliadas separadamente. Da mesma forma, a resistência média por idade só apresentou interpretação mais adequada quando a classe do concreto foi considerada simultaneamente.
 
-## Aprenda Quarto
-
-Acesse [Quarto](https://quarto.org/).
+Por fim, o `tidyverse` mostrou-se especialmente útil para operações agrupadas, aplicação simultânea de funções a várias colunas e construção de gráficos integrados ao fluxo de análise. Entretanto, nenhuma ferramenta substitui a avaliação do significado físico dos dados. O R permite organizar e explorar a informação, mas a decisão sobre a validade e a relevância dos resultados continua dependendo do julgamento técnico do profissional.
 
 ## 📖 Referências
+
+::: {#refs}
+:::
