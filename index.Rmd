@@ -1,6 +1,6 @@
 ---
 title: "Leonardo Müller"
-image: "Perdil Leo UFSJ.jpg"
+image: "perfil.jpg"
 links:
   - label: GitHub
     url: "https://github.com/LeoMuller13"
